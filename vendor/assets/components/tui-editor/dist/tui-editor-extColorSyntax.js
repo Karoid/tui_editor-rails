@@ -1,6 +1,6 @@
 /*!
  * tui-editor
- * @version 1.0.2
+ * @version 1.2.6
  * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com> (https://nhnent.github.io/tui.editor/)
  * @license MIT
  */
@@ -252,24 +252,21 @@ function colorSyntaxExtension(editor) {
     editor.addCommand('wysiwyg', {
       name: 'color',
       exec: function exec(wwe, color) {
-        var sq = wwe.getEditor();
-
         if (!color) {
           return;
         }
 
-        if (!sq.hasFormat('PRE')) {
-          if (color === RESET_COLOR) {
-            sq.changeFormat(null, {
-              class: 'colour',
-              tag: 'span'
-            });
-          } else {
-            sq.setTextColour(color);
-          }
-        }
+        var sq = wwe.getEditor();
+        var tableSelectionManager = wwe.componentManager.getManager('tableSelection');
+        if (sq.hasFormat('table') && tableSelectionManager.getSelectedCells().length) {
+          tableSelectionManager.styleToSelectedCells(styleColor, color);
 
-        wwe.focus();
+          var range = sq.getSelection();
+          range.collapse(true);
+          sq.setSelection(range);
+        } else {
+          styleColor(sq, color);
+        }
       }
     });
 
@@ -278,30 +275,61 @@ function colorSyntaxExtension(editor) {
 }
 
 /**
+ * style color
+ * @param {SquireExt} sq - squire ext instance
+ * @param {string} color - color sting value
+ * @ignore
+ */
+function styleColor(sq, color) {
+  if (!sq.hasFormat('PRE')) {
+    if (color === RESET_COLOR) {
+      sq.changeFormat(null, {
+        class: 'colour',
+        tag: 'span'
+      });
+    } else {
+      sq.setTextColour(color);
+    }
+  }
+}
+
+/**
  * Initialize UI
- * @param {object} editor Editor instance
- * @param {Array.<string>} preset Preset for color palette
+ * @param {object} editor - Editor instance
+ * @param {Array.<string>} preset - Preset for color palette
  * @ignore
  */
 function initUI(editor, preset) {
+  var name = 'colorSyntax';
   var className = 'tui-color';
   var i18n = editor.i18n;
+  var toolbar = editor.getUI().getToolbar();
+  var usageStatistics = editor.options.usageStatistics;
+
 
   editor.eventManager.addEventType('colorButtonClicked');
 
-  editor.getUI().toolbar.addButton({
-    className: className,
-    event: 'colorButtonClicked',
-    tooltip: i18n.get('Text color')
-  }, 4);
-  var $button = editor.getUI().toolbar.$el.find('button.' + className);
+  toolbar.insertItem(3, {
+    type: 'button',
+    options: {
+      name: name,
+      className: className,
+      event: 'colorButtonClicked',
+      tooltip: i18n.get('Text color')
+    }
+  });
+  var colorSyntaxButtonIndex = toolbar.indexOfItem(name);
+
+  var _toolbar$getItem = toolbar.getItem(colorSyntaxButtonIndex),
+      $button = _toolbar$getItem.$el;
 
   var $colorPickerContainer = (0, _jquery2.default)('<div />');
 
-  var $buttonBar = (0, _jquery2.default)('<button type="button" class="te-apply-button">입력</button>');
+  var $buttonBar = (0, _jquery2.default)('<button type="button" class="te-apply-button">' + i18n.get('OK') + '</button>');
 
   var cpOptions = {
-    container: $colorPickerContainer[0]
+    container: $colorPickerContainer[0],
+    usageStatistics: usageStatistics
   };
 
   if (preset) {
@@ -319,7 +347,7 @@ function initUI(editor, preset) {
     title: false,
     content: $colorPickerContainer,
     className: 'tui-popup-color',
-    $target: editor.getUI().$el,
+    $target: editor.getUI().getToolbar().$el,
     css: {
       'width': 'auto',
       'position': 'absolute'
@@ -331,18 +359,24 @@ function initUI(editor, preset) {
   });
 
   editor.eventManager.listen('colorButtonClicked', function () {
-    editor.eventManager.emit('closeAllPopup');
     if (popup.isShow()) {
       popup.hide();
-    } else {
-      var position = $button.position();
-      popup.$el.css({
-        top: position.top + $button.outerHeight(true),
-        left: position.left
-      });
-      popup.show();
-      colorPicker.slider.toggle(true);
+
+      return;
     }
+
+    var _$button$get = $button.get(0),
+        offsetTop = _$button$get.offsetTop,
+        offsetLeft = _$button$get.offsetLeft;
+
+    popup.$el.css({
+      top: offsetTop + $button.outerHeight(),
+      left: offsetLeft
+    });
+    colorPicker.slider.toggle(true);
+
+    editor.eventManager.emit('closeAllPopup');
+    popup.show();
   });
 
   editor.eventManager.listen('closeAllPopup', function () {

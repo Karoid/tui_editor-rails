@@ -1,6 +1,6 @@
 /*!
  * tui-editor
- * @version 1.0.2
+ * @version 1.2.6
  * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com> (https://nhnent.github.io/tui.editor/)
  * @license MIT
  */
@@ -13,7 +13,7 @@
 		exports["Editor"] = factory(require("jquery"), require("tui-code-snippet"), require("markdown-it"), require("to-mark"), require("highlight.js"));
 	else
 		root["tui"] = root["tui"] || {}, root["tui"]["Editor"] = factory(root["$"], (root["tui"] && root["tui"]["util"]), root["markdownit"], root["toMark"], root["hljs"]);
-})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_19__, __WEBPACK_EXTERNAL_MODULE_20__, __WEBPACK_EXTERNAL_MODULE_28__) {
+})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_22__, __WEBPACK_EXTERNAL_MODULE_23__, __WEBPACK_EXTERNAL_MODULE_31__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -76,7 +76,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 124);
+/******/ 	return __webpack_require__(__webpack_require__.s = 138);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -95,7 +95,117 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
 
 /***/ }),
 
-/***/ 10:
+/***/ 12:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _preview = __webpack_require__(13);
+
+var _preview2 = _interopRequireDefault(_preview);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * @fileoverview Implements markdown preview
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+
+/**
+ * Class Markdown Preview
+ * @extends {Preview}
+ */
+var MarkdownPreview = function (_Preview) {
+  _inherits(MarkdownPreview, _Preview);
+
+  /**
+   * Creates an instance of MarkdownPreview.
+   * @param {jQuery} $el - base jQuery element
+   * @param {EventManager} eventManager - event manager
+   * @param {Convertor} convertor - convertor
+   * @param {boolean} isViewer - true for view only mode
+   * @memberof MarkdownPreview
+   */
+  function MarkdownPreview($el, eventManager, convertor, isViewer) {
+    _classCallCheck(this, MarkdownPreview);
+
+    var _this = _possibleConstructorReturn(this, (MarkdownPreview.__proto__ || Object.getPrototypeOf(MarkdownPreview)).call(this, $el, eventManager, convertor, isViewer));
+
+    _this._initEvent();
+    return _this;
+  }
+
+  /**
+   * Initialize event
+   * @private
+   */
+
+
+  _createClass(MarkdownPreview, [{
+    key: '_initEvent',
+    value: function _initEvent() {
+      var _this2 = this;
+
+      var latestMarkdownValue = '';
+
+      this.eventManager.listen('contentChangedFromMarkdown', function (markdownEditor) {
+        latestMarkdownValue = markdownEditor.getValue();
+
+        if (_this2.isVisible()) {
+          _this2.lazyRunner.run('refresh', latestMarkdownValue.replace(/<br>\n/g, '<br>'));
+        }
+      });
+
+      this.eventManager.listen('previewNeedsRefresh', function (value) {
+        _this2.refresh(value || latestMarkdownValue);
+      });
+
+      this.$el.on('scroll', function (event) {
+        _this2.eventManager.emit('scroll', {
+          source: 'preview',
+          data: event
+        });
+      });
+    }
+
+    /**
+     * render
+     * @param {string} html - html string to render
+     * @memberof MarkdownPreview
+     * @override
+     */
+
+  }, {
+    key: 'render',
+    value: function render(html) {
+      _get(MarkdownPreview.prototype.__proto__ || Object.getPrototypeOf(MarkdownPreview.prototype), 'render', this).call(this, html);
+
+      this.eventManager.emit('previewRenderAfter', this);
+    }
+  }]);
+
+  return MarkdownPreview;
+}(_preview2.default);
+
+exports.default = MarkdownPreview;
+
+/***/ }),
+
+/***/ 13:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -115,7 +225,7 @@ var _jquery = __webpack_require__(0);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _lazyRunner = __webpack_require__(16);
+var _lazyRunner = __webpack_require__(20);
 
 var _lazyRunner2 = _interopRequireDefault(_lazyRunner);
 
@@ -260,7 +370,61 @@ exports.default = Preview;
 
 /***/ }),
 
-/***/ 11:
+/***/ 138:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _jquery = __webpack_require__(0);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Viewer = __webpack_require__(32);
+
+// for jquery
+/**
+ * @fileoverview entry point for viewer
+ * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
+ */
+_jquery2.default.fn.tuiEditor = function () {
+  var options = void 0,
+      instance = void 0;
+
+  var el = this.get(0);
+
+  if (el) {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    options = args[0] || {};
+
+    instance = _jquery2.default.data(el, 'tuiEditor');
+
+    if (instance) {
+      if (typeof options === 'string') {
+        var _instance;
+
+        return (_instance = instance)[options].apply(_instance, args.slice(1));
+      }
+    } else {
+      options.el = el;
+      instance = new Viewer(options);
+      _jquery2.default.data(el, 'tuiEditor', instance);
+    }
+  }
+
+  return this;
+};
+
+module.exports = Viewer;
+
+/***/ }),
+
+/***/ 14:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -373,7 +537,7 @@ exports.default = htmlSanitizer;
 
 /***/ }),
 
-/***/ 12:
+/***/ 15:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -397,7 +561,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var eventList = ['previewBeforeHook', 'previewRenderAfter', 'previewNeedsRefresh', 'addImageBlobHook', 'setMarkdownAfter', 'contentChangedFromWysiwyg', 'changeFromWysiwyg', 'contentChangedFromMarkdown', 'changeFromMarkdown', 'change', 'changeModeToWysiwyg', 'changeModeToMarkdown', 'changeModeBefore', 'changeMode', 'changePreviewStyle', 'openPopupAddLink', 'openPopupAddImage', 'openPopupAddTable', 'openPopupTableUtils', 'openHeadingSelect', 'openPopupCodeBlockLanguages', 'openPopupCodeBlockEditor', 'closePopupCodeBlockLanguages', 'closePopupCodeBlockEditor', 'closeAllPopup', 'command', 'addCommandBefore', 'htmlUpdate', 'markdownUpdate', 'renderedHtmlUpdated', 'removeEditor', 'convertorAfterMarkdownToHtmlConverted', 'convertorBeforeHtmlToMarkdownConverted', 'convertorAfterHtmlToMarkdownConverted', 'stateChange', 'wysiwygSetValueAfter', 'wysiwygSetValueBefore', 'wysiwygGetValueBefore', 'wysiwygProcessHTMLText', 'wysiwygRangeChangeAfter', 'wysiwygKeyEvent', 'scroll', 'click', 'mousedown', 'mouseover', 'mouseout', 'mouseup', 'contextmenu', 'keydown', 'keyup', 'keyMap', 'load', 'focus', 'blur', 'paste', 'pasteBefore', 'willPaste', 'copy', 'copyBefore', 'copyAfter', 'cut', 'cutAfter', 'drop', 'show', 'hide'];
+var eventList = ['previewBeforeHook', 'previewRenderAfter', 'previewNeedsRefresh', 'addImageBlobHook', 'setMarkdownAfter', 'contentChangedFromWysiwyg', 'changeFromWysiwyg', 'contentChangedFromMarkdown', 'changeFromMarkdown', 'change', 'changeModeToWysiwyg', 'changeModeToMarkdown', 'changeModeBefore', 'changeMode', 'changePreviewStyle', 'changePreviewTabPreview', 'changePreviewTabWrite', 'openPopupAddLink', 'openPopupAddImage', 'openPopupAddTable', 'openPopupTableUtils', 'openHeadingSelect', 'openPopupCodeBlockLanguages', 'openPopupCodeBlockEditor', 'openDropdownToolbar', 'closePopupCodeBlockLanguages', 'closePopupCodeBlockEditor', 'closeAllPopup', 'command', 'addCommandBefore', 'htmlUpdate', 'markdownUpdate', 'renderedHtmlUpdated', 'removeEditor', 'convertorAfterMarkdownToHtmlConverted', 'convertorBeforeHtmlToMarkdownConverted', 'convertorAfterHtmlToMarkdownConverted', 'stateChange', 'wysiwygSetValueAfter', 'wysiwygSetValueBefore', 'wysiwygGetValueBefore', 'wysiwygProcessHTMLText', 'wysiwygRangeChangeAfter', 'wysiwygKeyEvent', 'scroll', 'click', 'mousedown', 'mouseover', 'mouseout', 'mouseup', 'contextmenu', 'keydown', 'keyup', 'keyMap', 'load', 'focus', 'blur', 'paste', 'pasteBefore', 'willPaste', 'copy', 'copyBefore', 'copyAfter', 'cut', 'cutAfter', 'drop', 'show', 'hide'];
 
 /**
  * Class EventManager
@@ -624,6 +788,8 @@ var EventManager = function () {
         if (handler.namespace !== namespace) {
           handlersToSurvive.push(handler);
         }
+
+        return null;
       });
 
       this.events.set(type, handlersToSurvive);
@@ -637,61 +803,7 @@ exports.default = EventManager;
 
 /***/ }),
 
-/***/ 124:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _jquery = __webpack_require__(0);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Viewer = __webpack_require__(29);
-
-// for jquery
-/**
- * @fileoverview entry point for viewer
- * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
- */
-_jquery2.default.fn.tuiEditor = function () {
-  var options = void 0,
-      instance = void 0;
-
-  var el = this.get(0);
-
-  if (el) {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    options = args[0] || {};
-
-    instance = _jquery2.default.data(el, 'tuiEditor');
-
-    if (instance) {
-      if (typeof options === 'string') {
-        var _instance;
-
-        return (_instance = instance)[options].apply(_instance, args.slice(1));
-      }
-    } else {
-      options.el = el;
-      instance = new Viewer(options);
-      _jquery2.default.data(el, 'tuiEditor', instance);
-    }
-  }
-
-  return this;
-};
-
-module.exports = Viewer;
-
-/***/ }),
-
-/***/ 13:
+/***/ 16:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -781,7 +893,7 @@ exports.default = new ExtManager();
 
 /***/ }),
 
-/***/ 14:
+/***/ 17:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -805,43 +917,43 @@ var _tuiCodeSnippet = __webpack_require__(1);
 
 var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
 
-var _markdownIt = __webpack_require__(19);
+var _markdownIt = __webpack_require__(22);
 
 var _markdownIt2 = _interopRequireDefault(_markdownIt);
 
-var _toMark = __webpack_require__(20);
+var _toMark = __webpack_require__(23);
 
 var _toMark2 = _interopRequireDefault(_toMark);
 
-var _htmlSanitizer = __webpack_require__(11);
+var _htmlSanitizer = __webpack_require__(14);
 
 var _htmlSanitizer2 = _interopRequireDefault(_htmlSanitizer);
 
-var _markdownitTaskPlugin = __webpack_require__(21);
+var _markdownitTaskPlugin = __webpack_require__(24);
 
 var _markdownitTaskPlugin2 = _interopRequireDefault(_markdownitTaskPlugin);
 
-var _markdownitCodeBlockPlugin = __webpack_require__(22);
+var _markdownitCodeBlockPlugin = __webpack_require__(25);
 
 var _markdownitCodeBlockPlugin2 = _interopRequireDefault(_markdownitCodeBlockPlugin);
 
-var _markdownitCodeRenderer = __webpack_require__(23);
+var _markdownitCodeRenderer = __webpack_require__(26);
 
 var _markdownitCodeRenderer2 = _interopRequireDefault(_markdownitCodeRenderer);
 
-var _markdownitBlockQuoteRenderer = __webpack_require__(24);
+var _markdownitBlockQuoteRenderer = __webpack_require__(27);
 
 var _markdownitBlockQuoteRenderer2 = _interopRequireDefault(_markdownitBlockQuoteRenderer);
 
-var _markdownitTableRenderer = __webpack_require__(25);
+var _markdownitTableRenderer = __webpack_require__(28);
 
 var _markdownitTableRenderer2 = _interopRequireDefault(_markdownitTableRenderer);
 
-var _markdownitHtmlBlockRenderer = __webpack_require__(26);
+var _markdownitHtmlBlockRenderer = __webpack_require__(29);
 
 var _markdownitHtmlBlockRenderer2 = _interopRequireDefault(_markdownitHtmlBlockRenderer);
 
-var _markdownitBackticksRenderer = __webpack_require__(27);
+var _markdownitBackticksRenderer = __webpack_require__(30);
 
 var _markdownitBackticksRenderer2 = _interopRequireDefault(_markdownitBackticksRenderer);
 
@@ -1072,7 +1184,7 @@ var Convertor = function () {
       var FIND_BR_RX = /<br>/ig;
       var FIND_DOUBLE_BR_RX = /<br \/><br \/>/ig;
       var FIND_PASSING_AND_NORMAL_BR_RX = /<br data-tomark-pass \/><br \/>(.)/ig;
-      var FIRST_TWO_BRS_BEFORE_RX = /([^>]|<\/b>|<\/i>|<\/s>|<img [^>]*>)/;
+      var FIRST_TWO_BRS_BEFORE_RX = /([^>]|<\/a>|<\/code>|<\/span>|<\/b>|<\/i>|<\/s>|<img [^>]*>)/;
       var TWO_BRS_RX = /<br data-tomark-pass \/><br data-tomark-pass \/>/;
       var FIND_FIRST_TWO_BRS_RX = new RegExp(FIRST_TWO_BRS_BEFORE_RX.source + TWO_BRS_RX.source, 'g');
 
@@ -1119,295 +1231,6 @@ exports.default = Convertor;
 
 /***/ }),
 
-/***/ 16:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileoverview Implements LazyRunner
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-
-var _tuiCodeSnippet = __webpack_require__(1);
-
-var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Class LazyRunner
- */
-var LazyRunner = function () {
-  /**
-   * Creates an instance of LazyRunner.
-   * @memberof LazyRunner
-   */
-  function LazyRunner() {
-    _classCallCheck(this, LazyRunner);
-
-    this.globalTOID = null;
-    this.lazyRunFunctions = {};
-  }
-
-  _createClass(LazyRunner, [{
-    key: 'run',
-    value: function run(fn, params, context, delay) {
-      var TOID = void 0;
-
-      if (_tuiCodeSnippet2.default.isString(fn)) {
-        TOID = this._runRegisteredRun(fn, params, context, delay);
-      } else {
-        TOID = this._runSingleRun(fn, params, context, delay, this.globalTOID);
-        this.globalTOID = TOID;
-      }
-
-      return TOID;
-    }
-  }, {
-    key: 'registerLazyRunFunction',
-    value: function registerLazyRunFunction(name, fn, delay, context) {
-      context = context || this;
-
-      this.lazyRunFunctions[name] = {
-        fn: fn,
-        delay: delay,
-        context: context,
-        TOID: null
-      };
-    }
-  }, {
-    key: '_runSingleRun',
-    value: function _runSingleRun(fn, params, context, delay, TOID) {
-      this._clearTOIDIfNeed(TOID);
-
-      TOID = setTimeout(function () {
-        fn.call(context, params);
-      }, delay);
-
-      return TOID;
-    }
-  }, {
-    key: '_runRegisteredRun',
-    value: function _runRegisteredRun(lazyRunName, params, context, delay) {
-      var lazyRunFunction = this.lazyRunFunctions[lazyRunName];
-      var fn = lazyRunFunction.fn;
-      var TOID = lazyRunFunction.TOID;
-
-      delay = delay || lazyRunFunction.delay;
-      context = context || lazyRunFunction.context;
-
-      TOID = this._runSingleRun(fn, params, context, delay, TOID);
-
-      lazyRunFunction.TOID = TOID;
-
-      return TOID;
-    }
-  }, {
-    key: '_clearTOIDIfNeed',
-    value: function _clearTOIDIfNeed(TOID) {
-      if (TOID) {
-        clearTimeout(TOID);
-      }
-    }
-  }]);
-
-  return LazyRunner;
-}();
-
-exports.default = LazyRunner;
-
-/***/ }),
-
-/***/ 17:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileoverview Implements Command
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-
-var _tuiCodeSnippet = __webpack_require__(1);
-
-var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Class Command
- */
-var Command = function () {
-  /**
-   * @param {string} name Command name
-   * @param {number} type Command type (Command.TYPE)
-   * @param {Array.<string>} [keyMap] keyMap
-   */
-  function Command(name, type, keyMap) {
-    _classCallCheck(this, Command);
-
-    this.name = name;
-    this.type = type;
-
-    if (keyMap) {
-      this.setKeyMap(keyMap);
-    }
-  }
-  /**
-   * getName
-   * returns Name of command
-   * @memberof Command
-   * @returns {string} Command Name
-   */
-
-
-  _createClass(Command, [{
-    key: 'getName',
-    value: function getName() {
-      return this.name;
-    }
-
-    /**
-     * getType
-     * returns Type of command
-     * @memberof Command
-     * @returns {number} Command Command type number
-     */
-
-  }, {
-    key: 'getType',
-    value: function getType() {
-      return this.type;
-    }
-
-    /**
-     * isMDType
-     * returns whether Command Type is Markdown or not
-     * @memberof Command
-     * @returns {boolean} result
-     */
-
-  }, {
-    key: 'isMDType',
-    value: function isMDType() {
-      return this.type === Command.TYPE.MD;
-    }
-
-    /**
-     * isWWType
-     * returns whether Command Type is Wysiwyg or not
-     * @memberof Command
-     * @returns {boolean} result
-     */
-
-  }, {
-    key: 'isWWType',
-    value: function isWWType() {
-      return this.type === Command.TYPE.WW;
-    }
-
-    /**
-     * isGlobalType
-     * returns whether Command Type is Global or not
-     * @memberof Command
-     * @returns {boolean} result
-     */
-
-  }, {
-    key: 'isGlobalType',
-    value: function isGlobalType() {
-      return this.type === Command.TYPE.GB;
-    }
-
-    /**
-     * setKeyMap
-     * Set keymap value for each os
-     * @memberof Command
-     * @param {string} win Windows Key(and etc)
-     * @param {string} mac Mac osx key
-     */
-
-  }, {
-    key: 'setKeyMap',
-    value: function setKeyMap(win, mac) {
-      this.keyMap = [win, mac];
-    }
-  }]);
-
-  return Command;
-}();
-
-/**
- * Command factory method
- * @memberof Command
- * @param {string} typeStr Editor type name
- * @param {object} props Property
- *     @param {string} props.name Command name
- *     @param {number} props.type Command type number
- * @returns {Command}
- */
-
-
-Command.factory = function (typeStr, props) {
-  var type = void 0;
-
-  if (typeStr === 'markdown') {
-    type = Command.TYPE.MD;
-  } else if (typeStr === 'wysiwyg') {
-    type = Command.TYPE.WW;
-  } else if (typeStr === 'global') {
-    type = Command.TYPE.GB;
-  }
-
-  var command = new Command(props.name, type);
-
-  _tuiCodeSnippet2.default.extend(command, props);
-
-  return command;
-};
-
-/**
- * Command Type Constant
- * markdown : 0
- * wysiwyg : 1
- * global : 2
- * @memberof Command
- * @type {object}
- */
-Command.TYPE = {
-  MD: 0,
-  WW: 1,
-  GB: 2
-};
-
-exports.default = Command;
-
-/***/ }),
-
-/***/ 19:
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_19__;
-
-/***/ }),
-
 /***/ 2:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1432,16 +1255,17 @@ var _tuiCodeSnippet = __webpack_require__(1);
 
 var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
 
-var _command = __webpack_require__(17);
+var _command = __webpack_require__(21);
 
 var _command2 = _interopRequireDefault(_command);
+
+var _util = __webpack_require__(9);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var isMac = /Mac/.test(navigator.platform);
-var KEYMAP_OS_INDEX = isMac ? 1 : 0;
+var KEYMAP_OS_INDEX = _util.isMac ? 1 : 0;
 
 /**
  * Class CommandManager
@@ -1626,13 +1450,302 @@ exports.default = CommandManager;
 /***/ }),
 
 /***/ 20:
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_20__;
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileoverview Implements LazyRunner
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+
+var _tuiCodeSnippet = __webpack_require__(1);
+
+var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Class LazyRunner
+ */
+var LazyRunner = function () {
+  /**
+   * Creates an instance of LazyRunner.
+   * @memberof LazyRunner
+   */
+  function LazyRunner() {
+    _classCallCheck(this, LazyRunner);
+
+    this.globalTOID = null;
+    this.lazyRunFunctions = {};
+  }
+
+  _createClass(LazyRunner, [{
+    key: 'run',
+    value: function run(fn, params, context, delay) {
+      var TOID = void 0;
+
+      if (_tuiCodeSnippet2.default.isString(fn)) {
+        TOID = this._runRegisteredRun(fn, params, context, delay);
+      } else {
+        TOID = this._runSingleRun(fn, params, context, delay, this.globalTOID);
+        this.globalTOID = TOID;
+      }
+
+      return TOID;
+    }
+  }, {
+    key: 'registerLazyRunFunction',
+    value: function registerLazyRunFunction(name, fn, delay, context) {
+      context = context || this;
+
+      this.lazyRunFunctions[name] = {
+        fn: fn,
+        delay: delay,
+        context: context,
+        TOID: null
+      };
+    }
+  }, {
+    key: '_runSingleRun',
+    value: function _runSingleRun(fn, params, context, delay, TOID) {
+      this._clearTOIDIfNeed(TOID);
+
+      TOID = setTimeout(function () {
+        fn.call(context, params);
+      }, delay);
+
+      return TOID;
+    }
+  }, {
+    key: '_runRegisteredRun',
+    value: function _runRegisteredRun(lazyRunName, params, context, delay) {
+      var lazyRunFunction = this.lazyRunFunctions[lazyRunName];
+      var fn = lazyRunFunction.fn;
+      var TOID = lazyRunFunction.TOID;
+
+      delay = delay || lazyRunFunction.delay;
+      context = context || lazyRunFunction.context;
+
+      TOID = this._runSingleRun(fn, params, context, delay, TOID);
+
+      lazyRunFunction.TOID = TOID;
+
+      return TOID;
+    }
+  }, {
+    key: '_clearTOIDIfNeed',
+    value: function _clearTOIDIfNeed(TOID) {
+      if (TOID) {
+        clearTimeout(TOID);
+      }
+    }
+  }]);
+
+  return LazyRunner;
+}();
+
+exports.default = LazyRunner;
 
 /***/ }),
 
 /***/ 21:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileoverview Implements Command
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+
+var _tuiCodeSnippet = __webpack_require__(1);
+
+var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Class Command
+ */
+var Command = function () {
+  /**
+   * @param {string} name Command name
+   * @param {number} type Command type (Command.TYPE)
+   * @param {Array.<string>} [keyMap] keyMap
+   */
+  function Command(name, type, keyMap) {
+    _classCallCheck(this, Command);
+
+    this.name = name;
+    this.type = type;
+
+    if (keyMap) {
+      this.setKeyMap(keyMap);
+    }
+  }
+  /**
+   * getName
+   * returns Name of command
+   * @memberof Command
+   * @returns {string} Command Name
+   */
+
+
+  _createClass(Command, [{
+    key: 'getName',
+    value: function getName() {
+      return this.name;
+    }
+
+    /**
+     * getType
+     * returns Type of command
+     * @memberof Command
+     * @returns {number} Command Command type number
+     */
+
+  }, {
+    key: 'getType',
+    value: function getType() {
+      return this.type;
+    }
+
+    /**
+     * isMDType
+     * returns whether Command Type is Markdown or not
+     * @memberof Command
+     * @returns {boolean} result
+     */
+
+  }, {
+    key: 'isMDType',
+    value: function isMDType() {
+      return this.type === Command.TYPE.MD;
+    }
+
+    /**
+     * isWWType
+     * returns whether Command Type is Wysiwyg or not
+     * @memberof Command
+     * @returns {boolean} result
+     */
+
+  }, {
+    key: 'isWWType',
+    value: function isWWType() {
+      return this.type === Command.TYPE.WW;
+    }
+
+    /**
+     * isGlobalType
+     * returns whether Command Type is Global or not
+     * @memberof Command
+     * @returns {boolean} result
+     */
+
+  }, {
+    key: 'isGlobalType',
+    value: function isGlobalType() {
+      return this.type === Command.TYPE.GB;
+    }
+
+    /**
+     * setKeyMap
+     * Set keymap value for each os
+     * @memberof Command
+     * @param {string} win Windows Key(and etc)
+     * @param {string} mac Mac osx key
+     */
+
+  }, {
+    key: 'setKeyMap',
+    value: function setKeyMap(win, mac) {
+      this.keyMap = [win, mac];
+    }
+  }]);
+
+  return Command;
+}();
+
+/**
+ * Command factory method
+ * @memberof Command
+ * @param {string} typeStr Editor type name
+ * @param {object} props Property
+ *     @param {string} props.name Command name
+ *     @param {number} props.type Command type number
+ * @returns {Command}
+ */
+
+
+Command.factory = function (typeStr, props) {
+  var type = void 0;
+
+  if (typeStr === 'markdown') {
+    type = Command.TYPE.MD;
+  } else if (typeStr === 'wysiwyg') {
+    type = Command.TYPE.WW;
+  } else if (typeStr === 'global') {
+    type = Command.TYPE.GB;
+  }
+
+  var command = new Command(props.name, type);
+
+  _tuiCodeSnippet2.default.extend(command, props);
+
+  return command;
+};
+
+/**
+ * Command Type Constant
+ * markdown : 0
+ * wysiwyg : 1
+ * global : 2
+ * @memberof Command
+ * @type {object}
+ */
+Command.TYPE = {
+  MD: 0,
+  WW: 1,
+  GB: 2
+};
+
+exports.default = Command;
+
+/***/ }),
+
+/***/ 22:
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_22__;
+
+/***/ }),
+
+/***/ 23:
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_23__;
+
+/***/ }),
+
+/***/ 24:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1741,7 +1854,7 @@ module.exports = MarkdownitTaskRenderer;
 
 /***/ }),
 
-/***/ 22:
+/***/ 25:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1762,14 +1875,21 @@ module.exports = MarkdownitTaskRenderer;
  */
 var MarkdownitCodeBlockRenderer = function MarkdownitCodeBlockRenderer(markdownit) {
     markdownit.core.ruler.after('block', 'tui-code-block', function (state) {
+        var DEFAULT_NUMBER_OF_BACKTICKS = 3;
         var tokens = state.tokens;
-        var currentToken, tokenIndex;
+        var currentToken, tokenIndex, numberOfBackticks;
 
         for (tokenIndex = 0; tokenIndex < tokens.length; tokenIndex += 1) {
             currentToken = tokens[tokenIndex];
 
-            if (isCodeFenceToken(currentToken) && currentToken.info) {
-                setTokenAttribute(currentToken, 'data-language', escape(currentToken.info.replace(' ', ''), true));
+            if (isCodeFenceToken(currentToken)) {
+                numberOfBackticks = currentToken.markup.length;
+                if (numberOfBackticks > DEFAULT_NUMBER_OF_BACKTICKS) {
+                    setTokenAttribute(currentToken, 'data-backticks', numberOfBackticks, true);
+                }
+                if (currentToken.info) {
+                    setTokenAttribute(currentToken, 'data-language', escape(currentToken.info.replace(' ', ''), true));
+                }
             }
         }
     });
@@ -1818,7 +1938,7 @@ module.exports = MarkdownitCodeBlockRenderer;
 
 /***/ }),
 
-/***/ 23:
+/***/ 26:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1888,7 +2008,7 @@ module.exports = function code(state, startLine, endLine /*, silent*/) {
 
 /***/ }),
 
-/***/ 24:
+/***/ 27:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2221,7 +2341,7 @@ module.exports = function blockquote(state, startLine, endLine, silent) {
 
 /***/ }),
 
-/***/ 25:
+/***/ 28:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2436,7 +2556,7 @@ module.exports = function table(state, startLine, endLine, silent) {
 
 /***/ }),
 
-/***/ 26:
+/***/ 29:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2534,7 +2654,546 @@ module.exports = function html_block(state, startLine, endLine, silent) {
 
 /***/ }),
 
-/***/ 27:
+/***/ 3:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _jquery = __webpack_require__(0);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _tuiCodeSnippet = __webpack_require__(1);
+
+var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @fileoverview DOM Utils
+ * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
+ */
+var FIND_ZWB = /\u200B/g;
+
+/**
+ * isTextNode
+ * Check if node is text node
+ * @param {Node} node node to check
+ * @returns {boolean} result
+ * @ignore
+ */
+var isTextNode = function isTextNode(node) {
+  return node && node.nodeType === Node.TEXT_NODE;
+};
+
+/**
+ * isElemNode
+ * Check if node is element node
+ * @param {Node} node node to check
+ * @returns {boolean} result
+ * @ignore
+ */
+var isElemNode = function isElemNode(node) {
+  return node && node.nodeType === Node.ELEMENT_NODE;
+};
+
+/**
+ * getNodeName
+ * Get node name of node
+ * @param {Node} node node
+ * @returns {string} node name
+ * @ignore
+ */
+var getNodeName = function getNodeName(node) {
+  if (isElemNode(node)) {
+    return node.tagName;
+  }
+
+  return 'TEXT';
+};
+
+/**
+ * getTextLength
+ * Get node offset length of node(for Range API)
+ * @param {Node} node node
+ * @returns {number} length
+ * @ignore
+ */
+var getTextLength = function getTextLength(node) {
+  var len = void 0;
+
+  if (isElemNode(node)) {
+    len = node.textContent.replace(FIND_ZWB, '').length;
+  } else if (isTextNode(node)) {
+    len = node.nodeValue.replace(FIND_ZWB, '').length;
+  }
+
+  return len;
+};
+
+/**
+ * getOffsetLength
+ * Get node offset length of node(for Range API)
+ * @param {Node} node node
+ * @returns {number} length
+ * @ignore
+ */
+var getOffsetLength = function getOffsetLength(node) {
+  var len = void 0;
+
+  if (isElemNode(node)) {
+    len = node.childNodes.length;
+  } else if (isTextNode(node)) {
+    len = node.nodeValue.replace(FIND_ZWB, '').length;
+  }
+
+  return len;
+};
+
+/**
+ * getNodeOffsetOfParent
+ * get node offset between parent's childnodes
+ * @param {Node} node node
+ * @returns {number} offset(index)
+ * @ignore
+ */
+var getNodeOffsetOfParent = function getNodeOffsetOfParent(node) {
+  var childNodesOfParent = node.parentNode.childNodes;
+  var i = void 0,
+      t = void 0,
+      found = void 0;
+
+  for (i = 0, t = childNodesOfParent.length; i < t; i += 1) {
+    if (childNodesOfParent[i] === node) {
+      found = i;
+      break;
+    }
+  }
+
+  return found;
+};
+
+/**
+ * getChildNodeByOffset
+ * get child node by offset
+ * @param {Node} node node
+ * @param {number} index offset index
+ * @returns {Node} foudned node
+ * @ignore
+ */
+var getChildNodeByOffset = function getChildNodeByOffset(node, index) {
+  var currentNode = void 0;
+
+  if (isTextNode(node)) {
+    currentNode = node;
+  } else if (node.childNodes.length && index >= 0) {
+    currentNode = node.childNodes[index];
+  }
+
+  return currentNode;
+};
+
+/**
+ * getNodeWithDirectionUntil
+ * find next node from passed node
+ * @param {strong} direction previous or next
+ * @param {Node} node node
+ * @param {string} untilNodeName parent node name to limit
+ * @returns {Node} founded node
+ * @ignore
+ */
+var getNodeWithDirectionUntil = function getNodeWithDirectionUntil(direction, node, untilNodeName) {
+  var directionKey = direction + 'Sibling';
+  var nodeName = void 0,
+      foundedNode = void 0;
+
+  while (node && !node[directionKey]) {
+    nodeName = getNodeName(node.parentNode);
+
+    if (nodeName === untilNodeName || nodeName === 'BODY') {
+      break;
+    }
+
+    node = node.parentNode;
+  }
+
+  if (node[directionKey]) {
+    foundedNode = node[directionKey];
+  }
+
+  return foundedNode;
+};
+
+/**
+ * getPrevOffsetNodeUntil
+ * get prev node of childnode pointed with index
+ * @param {Node} node node
+ * @param {number} index offset index
+ * @param {string} untilNodeName parent node name to limit
+ * @returns {Node} founded node
+ * @ignore
+ */
+var getPrevOffsetNodeUntil = function getPrevOffsetNodeUntil(node, index, untilNodeName) {
+  var prevNode = void 0;
+
+  if (index > 0) {
+    prevNode = getChildNodeByOffset(node, index - 1);
+  } else {
+    prevNode = getNodeWithDirectionUntil('previous', node, untilNodeName);
+  }
+
+  return prevNode;
+};
+
+var getParentUntilBy = function getParentUntilBy(node, matchCondition, stopCondition) {
+  var foundedNode = void 0;
+
+  while (node.parentNode && !matchCondition(node.parentNode)) {
+    node = node.parentNode;
+
+    if (stopCondition && stopCondition(node.parentNode)) {
+      break;
+    }
+  }
+
+  if (matchCondition(node.parentNode)) {
+    foundedNode = node;
+  }
+
+  return foundedNode;
+};
+
+/**
+ * getParentUntil
+ * get parent node until paseed node name
+ * @param {Node} node node
+ * @param {string|HTMLNode} untilNode node name or node to limit
+ * @returns {Node} founded node
+ * @ignore
+ */
+var getParentUntil = function getParentUntil(node, untilNode) {
+  var foundedNode = void 0;
+
+  if (_tuiCodeSnippet2.default.isString(untilNode)) {
+    foundedNode = getParentUntilBy(node, function (targetNode) {
+      return untilNode === getNodeName(targetNode);
+    });
+  } else {
+    foundedNode = getParentUntilBy(node, function (targetNode) {
+      return untilNode === targetNode;
+    });
+  }
+
+  return foundedNode;
+};
+
+/**
+ * getNodeWithDirectionUnderParent
+ * get node on the given direction under given parent
+ * @param {strong} direction previous or next
+ * @param {Node} node node
+ * @param {string|Node} underNode parent node name to limit
+ * @returns {Node} founded node
+ * @ignore
+ */
+var getNodeWithDirectionUnderParent = function getNodeWithDirectionUnderParent(direction, node, underNode) {
+  var directionKey = direction + 'Sibling';
+  var foundedNode = void 0;
+
+  node = getParentUntil(node, underNode);
+
+  if (node && node[directionKey]) {
+    foundedNode = node[directionKey];
+  }
+
+  return foundedNode;
+};
+
+/**
+ * getTopPrevNodeUnder
+ * get top previous top level node under given node
+ * @param {Node} node node
+ * @param {Node} underNode underNode
+ * @returns {Node} founded node
+ * @ignore
+ */
+var getTopPrevNodeUnder = function getTopPrevNodeUnder(node, underNode) {
+  return getNodeWithDirectionUnderParent('previous', node, underNode);
+};
+
+/**
+ * getNextTopBlockNode
+ * get next top level block node
+ * @param {Node} node node
+ * @param {Node} underNode underNode
+ * @returns {Node} founded node
+ * @ignore
+ */
+var getTopNextNodeUnder = function getTopNextNodeUnder(node, underNode) {
+  return getNodeWithDirectionUnderParent('next', node, underNode);
+};
+
+/**
+ * Get parent element the body element
+ * @param {Node} node Node for start searching
+ * @returns {Node}
+ * @ignore
+ */
+var getTopBlockNode = function getTopBlockNode(node) {
+  return getParentUntil(node, 'BODY');
+};
+
+/**
+ * Get previous text node
+ * @param {Node} node Node for start searching
+ * @returns {Node}
+ * @ignore
+ */
+var getPrevTextNode = function getPrevTextNode(node) {
+  node = node.previousSibling || node.parentNode;
+
+  while (!isTextNode(node) && getNodeName(node) !== 'BODY') {
+    if (node.previousSibling) {
+      node = node.previousSibling;
+
+      while (node.lastChild) {
+        node = node.lastChild;
+      }
+    } else {
+      node = node.parentNode;
+    }
+  }
+
+  if (getNodeName(node) === 'BODY') {
+    node = null;
+  }
+
+  return node;
+};
+
+/**
+ * test whether root contains the given node
+ * @param {HTMLNode} root - root node
+ * @param {HTMLNode} node - node to test
+ * @returns {Boolean} true if root contains node
+ */
+var containsNode = function containsNode(root, node) {
+  var walker = document.createTreeWalker(root, 4, null, false);
+  var found = root === node;
+
+  while (!found && walker.nextNode()) {
+    found = walker.currentNode === node;
+  }
+
+  return found;
+};
+
+/**
+ * find node by offset
+ * @param {HTMLElement} root Root element
+ * @param {Array.<number>} offsetList offset list
+ * @param {function} textNodeFilter Text node filter
+ * @returns {Array}
+ * @ignore
+ */
+var findOffsetNode = function findOffsetNode(root, offsetList, textNodeFilter) {
+  var result = [];
+  var text = '';
+  var walkerOffset = 0;
+  var newWalkerOffset = void 0;
+
+  if (!offsetList.length) {
+    return result;
+  }
+
+  var offset = offsetList.shift();
+  var walker = document.createTreeWalker(root, 4, null, false);
+
+  while (walker.nextNode()) {
+    text = walker.currentNode.nodeValue || '';
+
+    if (textNodeFilter) {
+      text = textNodeFilter(text);
+    }
+
+    newWalkerOffset = walkerOffset + text.length;
+
+    while (newWalkerOffset >= offset) {
+      result.push({
+        container: walker.currentNode,
+        offsetInContainer: offset - walkerOffset,
+        offset: offset
+      });
+
+      if (!offsetList.length) {
+        return result;
+      }
+      offset = offsetList.shift();
+    }
+    walkerOffset = newWalkerOffset;
+  }
+
+  // there should be offset left
+  do {
+    result.push({
+      container: walker.currentNode,
+      offsetInContainer: text.length,
+      offset: offset
+    });
+    offset = offsetList.shift();
+  } while (!_tuiCodeSnippet2.default.isUndefined(offset));
+
+  return result;
+};
+
+var getNodeInfo = function getNodeInfo(node) {
+  var path = {};
+
+  path.tagName = node.nodeName;
+
+  if (node.id) {
+    path.id = node.id;
+  }
+
+  var className = node.className.trim();
+
+  if (className) {
+    path.className = className;
+  }
+
+  return path;
+};
+
+var getPath = function getPath(node, root) {
+  var paths = [];
+
+  while (node && node !== root) {
+    if (isElemNode(node)) {
+      paths.unshift(getNodeInfo(node));
+    }
+
+    node = node.parentNode;
+  }
+
+  return paths;
+};
+
+/**
+ * Find next, previous TD or TH element by given TE element
+ * @param {HTMLElement} node TD element
+ * @param {string} direction Boolean value for direction true is find next cell
+ * @returns {HTMLElement|null}
+ * @ignore
+ */
+var getTableCellByDirection = function getTableCellByDirection(node, direction) {
+  var isForward = true;
+  var targetElement = null;
+
+  if (_tuiCodeSnippet2.default.isUndefined(direction) || direction !== 'next' && direction !== 'previous') {
+    return null;
+  } else if (direction === 'previous') {
+    isForward = false;
+  }
+
+  if (isForward) {
+    targetElement = node.nextElementSibling;
+  } else {
+    targetElement = node.previousElementSibling;
+  }
+
+  return targetElement;
+};
+
+/**
+ * Find sibling TR's TD element by given TD and direction
+ * @param {HTMLElement} node TD element
+ * @param {string} direction Boolean value for find first TD in next line
+ * @param {boolean} [needEdgeCell=false] Boolean value for find first TD in next line
+ * @returns {HTMLElement|null}
+ * @ignore
+ */
+var getSiblingRowCellByDirection = function getSiblingRowCellByDirection(node, direction, needEdgeCell) {
+  var isForward = true;
+  var tableCellElement = null;
+  var $node = void 0,
+      index = void 0,
+      $targetRowElement = void 0,
+      $currentContainer = void 0,
+      $siblingContainer = void 0,
+      isSiblingContainerExists = void 0;
+
+  if (_tuiCodeSnippet2.default.isUndefined(direction) || direction !== 'next' && direction !== 'previous') {
+    return null;
+  } else if (direction === 'previous') {
+    isForward = false;
+  }
+
+  if (node) {
+    $node = (0, _jquery2.default)(node);
+
+    if (isForward) {
+      $targetRowElement = $node.parent().next();
+      $currentContainer = $node.parents('thead');
+      $siblingContainer = $currentContainer[0] && $currentContainer.next();
+      isSiblingContainerExists = $siblingContainer && getNodeName($siblingContainer[0]) === 'TBODY';
+
+      index = 0;
+    } else {
+      $targetRowElement = $node.parent().prev();
+      $currentContainer = $node.parents('tbody');
+      $siblingContainer = $currentContainer[0] && $currentContainer.prev();
+      isSiblingContainerExists = $siblingContainer && getNodeName($siblingContainer[0]) === 'THEAD';
+
+      index = node.parentNode.childNodes.length - 1;
+    }
+
+    if (_tuiCodeSnippet2.default.isUndefined(needEdgeCell) || !needEdgeCell) {
+      index = getNodeOffsetOfParent(node);
+    }
+
+    if ($targetRowElement[0]) {
+      tableCellElement = $targetRowElement.children('td,th')[index];
+    } else if ($currentContainer[0] && isSiblingContainerExists) {
+      tableCellElement = $siblingContainer.find('td,th')[index];
+    }
+
+    return tableCellElement;
+  }
+
+  return null;
+};
+
+exports.default = {
+  getNodeName: getNodeName,
+  isTextNode: isTextNode,
+  isElemNode: isElemNode,
+  getTextLength: getTextLength,
+  getOffsetLength: getOffsetLength,
+  getPrevOffsetNodeUntil: getPrevOffsetNodeUntil,
+  getNodeOffsetOfParent: getNodeOffsetOfParent,
+  getChildNodeByOffset: getChildNodeByOffset,
+  containsNode: containsNode,
+  getTopPrevNodeUnder: getTopPrevNodeUnder,
+  getTopNextNodeUnder: getTopNextNodeUnder,
+  getParentUntilBy: getParentUntilBy,
+  getParentUntil: getParentUntil,
+  getTopBlockNode: getTopBlockNode,
+  getPrevTextNode: getPrevTextNode,
+  findOffsetNode: findOffsetNode,
+  getPath: getPath,
+  getNodeInfo: getNodeInfo,
+  getTableCellByDirection: getTableCellByDirection,
+  getSiblingRowCellByDirection: getSiblingRowCellByDirection
+};
+
+/***/ }),
+
+/***/ 30:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2607,14 +3266,14 @@ module.exports = function backtick(state, silent) {
 
 /***/ }),
 
-/***/ 28:
+/***/ 31:
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_28__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_31__;
 
 /***/ }),
 
-/***/ 29:
+/***/ 32:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2634,11 +3293,11 @@ var _tuiCodeSnippet = __webpack_require__(1);
 
 var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
 
-var _mdPreview = __webpack_require__(9);
+var _mdPreview = __webpack_require__(12);
 
 var _mdPreview2 = _interopRequireDefault(_mdPreview);
 
-var _eventManager = __webpack_require__(12);
+var _eventManager = __webpack_require__(15);
 
 var _eventManager2 = _interopRequireDefault(_eventManager);
 
@@ -2646,11 +3305,11 @@ var _commandManager = __webpack_require__(2);
 
 var _commandManager2 = _interopRequireDefault(_commandManager);
 
-var _extManager = __webpack_require__(13);
+var _extManager = __webpack_require__(16);
 
 var _extManager2 = _interopRequireDefault(_extManager);
 
-var _convertor = __webpack_require__(14);
+var _convertor = __webpack_require__(17);
 
 var _convertor2 = _interopRequireDefault(_convertor);
 
@@ -2692,12 +3351,19 @@ var ToastUIEditorViewer = function () {
 
     _classCallCheck(this, ToastUIEditorViewer);
 
-    this.options = options;
+    this.options = _jquery2.default.extend({
+      useDefaultHTMLSanitizer: true,
+      codeBlockLanguages: _codeBlockManager.CodeBlockManager.getHighlightJSLanguages()
+    }, options);
 
     this.eventManager = new _eventManager2.default();
     this.commandManager = new _commandManager2.default(this);
     this.convertor = new _convertor2.default(this.eventManager);
     this.toMarkOptions = null;
+
+    if (this.options.useDefaultHTMLSanitizer) {
+      this.convertor.initHtmlSanitizer();
+    }
 
     if (this.options.hooks) {
       _tuiCodeSnippet2.default.forEach(this.options.hooks, function (fn, key) {
@@ -2935,522 +3601,6 @@ module.exports = ToastUIEditorViewer;
 
 /***/ }),
 
-/***/ 3:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _jquery = __webpack_require__(0);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _tuiCodeSnippet = __webpack_require__(1);
-
-var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @fileoverview DOM Utils
- * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
- */
-var FIND_ZWB = /\u200B/g;
-
-/**
- * isTextNode
- * Check if node is text node
- * @param {Node} node node to check
- * @returns {boolean} result
- * @ignore
- */
-var isTextNode = function isTextNode(node) {
-  return node && node.nodeType === Node.TEXT_NODE;
-};
-
-/**
- * isElemNode
- * Check if node is element node
- * @param {Node} node node to check
- * @returns {boolean} result
- * @ignore
- */
-var isElemNode = function isElemNode(node) {
-  return node && node.nodeType === Node.ELEMENT_NODE;
-};
-
-/**
- * getNodeName
- * Get node name of node
- * @param {Node} node node
- * @returns {string} node name
- * @ignore
- */
-var getNodeName = function getNodeName(node) {
-  if (isElemNode(node)) {
-    return node.tagName;
-  }
-
-  return 'TEXT';
-};
-
-/**
- * getTextLength
- * Get node offset length of node(for Range API)
- * @param {Node} node node
- * @returns {number} length
- * @ignore
- */
-var getTextLength = function getTextLength(node) {
-  var len = void 0;
-
-  if (isElemNode(node)) {
-    len = node.textContent.replace(FIND_ZWB, '').length;
-  } else if (isTextNode(node)) {
-    len = node.nodeValue.replace(FIND_ZWB, '').length;
-  }
-
-  return len;
-};
-
-/**
- * getOffsetLength
- * Get node offset length of node(for Range API)
- * @param {Node} node node
- * @returns {number} length
- * @ignore
- */
-var getOffsetLength = function getOffsetLength(node) {
-  var len = void 0;
-
-  if (isElemNode(node)) {
-    len = node.childNodes.length;
-  } else if (isTextNode(node)) {
-    len = node.nodeValue.replace(FIND_ZWB, '').length;
-  }
-
-  return len;
-};
-
-/**
- * getNodeOffsetOfParent
- * get node offset between parent's childnodes
- * @param {Node} node node
- * @returns {number} offset(index)
- * @ignore
- */
-var getNodeOffsetOfParent = function getNodeOffsetOfParent(node) {
-  var childNodesOfParent = node.parentNode.childNodes;
-  var i = void 0,
-      t = void 0,
-      found = void 0;
-
-  for (i = 0, t = childNodesOfParent.length; i < t; i += 1) {
-    if (childNodesOfParent[i] === node) {
-      found = i;
-      break;
-    }
-  }
-
-  return found;
-};
-
-/**
- * getChildNodeByOffset
- * get child node by offset
- * @param {Node} node node
- * @param {number} index offset index
- * @returns {Node} foudned node
- * @ignore
- */
-var getChildNodeByOffset = function getChildNodeByOffset(node, index) {
-  var currentNode = void 0;
-
-  if (isTextNode(node)) {
-    currentNode = node;
-  } else if (node.childNodes.length && index >= 0) {
-    currentNode = node.childNodes[index];
-  }
-
-  return currentNode;
-};
-
-/**
- * getNodeWithDirectionUntil
- * find next node from passed node
- * @param {strong} direction previous or next
- * @param {Node} node node
- * @param {string} untilNodeName parent node name to limit
- * @returns {Node} founded node
- * @ignore
- */
-var getNodeWithDirectionUntil = function getNodeWithDirectionUntil(direction, node, untilNodeName) {
-  var directionKey = direction + 'Sibling';
-  var nodeName = void 0,
-      foundedNode = void 0;
-
-  while (node && !node[directionKey]) {
-    nodeName = getNodeName(node.parentNode);
-
-    if (nodeName === untilNodeName || nodeName === 'BODY') {
-      break;
-    }
-
-    node = node.parentNode;
-  }
-
-  if (node[directionKey]) {
-    foundedNode = node[directionKey];
-  }
-
-  return foundedNode;
-};
-
-/**
- * getPrevOffsetNodeUntil
- * get prev node of childnode pointed with index
- * @param {Node} node node
- * @param {number} index offset index
- * @param {string} untilNodeName parent node name to limit
- * @returns {Node} founded node
- * @ignore
- */
-var getPrevOffsetNodeUntil = function getPrevOffsetNodeUntil(node, index, untilNodeName) {
-  var prevNode = void 0;
-
-  if (index > 0) {
-    prevNode = getChildNodeByOffset(node, index - 1);
-  } else {
-    prevNode = getNodeWithDirectionUntil('previous', node, untilNodeName);
-  }
-
-  return prevNode;
-};
-
-var getParentUntilBy = function getParentUntilBy(node, condition) {
-  var foundedNode = void 0;
-
-  while (node.parentNode && !condition(node.parentNode)) {
-    node = node.parentNode;
-  }
-
-  if (condition(node.parentNode)) {
-    foundedNode = node;
-  }
-
-  return foundedNode;
-};
-
-/**
- * getParentUntil
- * get parent node until paseed node name
- * @param {Node} node node
- * @param {string|HTMLNode} untilNode node name or node to limit
- * @returns {Node} founded node
- * @ignore
- */
-var getParentUntil = function getParentUntil(node, untilNode) {
-  var foundedNode = void 0;
-
-  if (_tuiCodeSnippet2.default.isString(untilNode)) {
-    foundedNode = getParentUntilBy(node, function (targetNode) {
-      return untilNode === getNodeName(targetNode);
-    });
-  } else {
-    foundedNode = getParentUntilBy(node, function (targetNode) {
-      return untilNode === targetNode;
-    });
-  }
-
-  return foundedNode;
-};
-
-/**
- * getNodeWithDirectionUnderParent
- * get node on the given direction under given parent
- * @param {strong} direction previous or next
- * @param {Node} node node
- * @param {string|Node} underNode parent node name to limit
- * @returns {Node} founded node
- * @ignore
- */
-var getNodeWithDirectionUnderParent = function getNodeWithDirectionUnderParent(direction, node, underNode) {
-  var directionKey = direction + 'Sibling';
-  var foundedNode = void 0;
-
-  node = getParentUntil(node, underNode);
-
-  if (node && node[directionKey]) {
-    foundedNode = node[directionKey];
-  }
-
-  return foundedNode;
-};
-
-/**
- * getTopPrevNodeUnder
- * get top previous top level node under given node
- * @param {Node} node node
- * @param {Node} underNode underNode
- * @returns {Node} founded node
- * @ignore
- */
-var getTopPrevNodeUnder = function getTopPrevNodeUnder(node, underNode) {
-  return getNodeWithDirectionUnderParent('previous', node, underNode);
-};
-
-/**
- * getNextTopBlockNode
- * get next top level block node
- * @param {Node} node node
- * @param {Node} underNode underNode
- * @returns {Node} founded node
- * @ignore
- */
-var getTopNextNodeUnder = function getTopNextNodeUnder(node, underNode) {
-  return getNodeWithDirectionUnderParent('next', node, underNode);
-};
-
-/**
- * Get parent element the body element
- * @param {Node} node Node for start searching
- * @returns {Node}
- * @ignore
- */
-var getTopBlockNode = function getTopBlockNode(node) {
-  return getParentUntil(node, 'BODY');
-};
-
-/**
- * Get previous text node
- * @param {Node} node Node for start searching
- * @returns {Node}
- * @ignore
- */
-var getPrevTextNode = function getPrevTextNode(node) {
-  node = node.previousSibling || node.parentNode;
-
-  while (!isTextNode(node) && getNodeName(node) !== 'BODY') {
-    if (node.previousSibling) {
-      node = node.previousSibling;
-
-      while (node.lastChild) {
-        node = node.lastChild;
-      }
-    } else {
-      node = node.parentNode;
-    }
-  }
-
-  if (getNodeName(node) === 'BODY') {
-    node = null;
-  }
-
-  return node;
-};
-
-/**
- * find node by offset
- * @param {HTMLElement} root Root element
- * @param {Array.<number>} offsetList offset list
- * @param {function} textNodeFilter Text node filter
- * @returns {Array}
- * @ignore
- */
-var findOffsetNode = function findOffsetNode(root, offsetList, textNodeFilter) {
-  var result = [];
-  var text = '';
-  var walkerOffset = 0;
-  var newWalkerOffset = void 0;
-
-  if (!offsetList.length) {
-    return result;
-  }
-
-  var offset = offsetList.shift();
-  var walker = document.createTreeWalker(root, 4, null, false);
-
-  while (walker.nextNode()) {
-    text = walker.currentNode.nodeValue || '';
-
-    if (textNodeFilter) {
-      text = textNodeFilter(text);
-    }
-
-    newWalkerOffset = walkerOffset + text.length;
-
-    while (newWalkerOffset >= offset) {
-      result.push({
-        container: walker.currentNode,
-        offsetInContainer: offset - walkerOffset,
-        offset: offset
-      });
-
-      if (!offsetList.length) {
-        return result;
-      }
-      offset = offsetList.shift();
-    }
-    walkerOffset = newWalkerOffset;
-  }
-
-  // there should be offset left
-  do {
-    result.push({
-      container: walker.currentNode,
-      offsetInContainer: text.length,
-      offset: offset
-    });
-    offset = offsetList.shift();
-  } while (!_tuiCodeSnippet2.default.isUndefined(offset));
-
-  return result;
-};
-
-var getNodeInfo = function getNodeInfo(node) {
-  var path = {};
-
-  path.tagName = node.nodeName;
-
-  if (node.id) {
-    path.id = node.id;
-  }
-
-  var className = node.className.trim();
-
-  if (className) {
-    path.className = className;
-  }
-
-  return path;
-};
-
-var getPath = function getPath(node, root) {
-  var paths = [];
-
-  while (node && node !== root) {
-    if (isElemNode(node)) {
-      paths.unshift(getNodeInfo(node));
-    }
-
-    node = node.parentNode;
-  }
-
-  return paths;
-};
-
-/**
- * Find next, previous TD or TH element by given TE element
- * @param {HTMLElement} node TD element
- * @param {string} direction Boolean value for direction true is find next cell
- * @returns {HTMLElement|null}
- * @ignore
- */
-var getTableCellByDirection = function getTableCellByDirection(node, direction) {
-  var isForward = true;
-  var targetElement = null;
-
-  if (_tuiCodeSnippet2.default.isUndefined(direction) || direction !== 'next' && direction !== 'previous') {
-    return null;
-  } else if (direction === 'previous') {
-    isForward = false;
-  }
-
-  if (isForward) {
-    targetElement = node.nextElementSibling;
-  } else {
-    targetElement = node.previousElementSibling;
-  }
-
-  return targetElement;
-};
-
-/**
- * Find sibling TR's TD element by given TD and direction
- * @param {HTMLElement} node TD element
- * @param {string} direction Boolean value for find first TD in next line
- * @param {boolean} [needEdgeCell=false] Boolean value for find first TD in next line
- * @returns {HTMLElement|null}
- * @ignore
- */
-var getSiblingRowCellByDirection = function getSiblingRowCellByDirection(node, direction, needEdgeCell) {
-  var isForward = true;
-  var tableCellElement = null;
-  var $node = void 0,
-      index = void 0,
-      $targetRowElement = void 0,
-      $currentContainer = void 0,
-      $siblingContainer = void 0,
-      isSiblingContainerExists = void 0;
-
-  if (_tuiCodeSnippet2.default.isUndefined(direction) || direction !== 'next' && direction !== 'previous') {
-    return null;
-  } else if (direction === 'previous') {
-    isForward = false;
-  }
-
-  if (node) {
-    $node = (0, _jquery2.default)(node);
-
-    if (isForward) {
-      $targetRowElement = $node.parent().next();
-      $currentContainer = $node.parents('thead');
-      $siblingContainer = $currentContainer[0] && $currentContainer.next();
-      isSiblingContainerExists = $siblingContainer && getNodeName($siblingContainer[0]) === 'TBODY';
-
-      index = 0;
-    } else {
-      $targetRowElement = $node.parent().prev();
-      $currentContainer = $node.parents('tbody');
-      $siblingContainer = $currentContainer[0] && $currentContainer.prev();
-      isSiblingContainerExists = $siblingContainer && getNodeName($siblingContainer[0]) === 'THEAD';
-
-      index = node.parentNode.childNodes.length - 1;
-    }
-
-    if (_tuiCodeSnippet2.default.isUndefined(needEdgeCell) || !needEdgeCell) {
-      index = getNodeOffsetOfParent(node);
-    }
-
-    if ($targetRowElement[0]) {
-      tableCellElement = $targetRowElement.children('td,th')[index];
-    } else if ($currentContainer[0] && isSiblingContainerExists) {
-      tableCellElement = $siblingContainer.find('td,th')[index];
-    }
-
-    return tableCellElement;
-  }
-
-  return null;
-};
-
-exports.default = {
-  getNodeName: getNodeName,
-  isTextNode: isTextNode,
-  isElemNode: isElemNode,
-  getTextLength: getTextLength,
-  getOffsetLength: getOffsetLength,
-  getPrevOffsetNodeUntil: getPrevOffsetNodeUntil,
-  getNodeOffsetOfParent: getNodeOffsetOfParent,
-  getChildNodeByOffset: getChildNodeByOffset,
-  getTopPrevNodeUnder: getTopPrevNodeUnder,
-  getTopNextNodeUnder: getTopNextNodeUnder,
-  getParentUntil: getParentUntil,
-  getTopBlockNode: getTopBlockNode,
-  getPrevTextNode: getPrevTextNode,
-  findOffsetNode: findOffsetNode,
-  getPath: getPath,
-  getNodeInfo: getNodeInfo,
-  getTableCellByDirection: getTableCellByDirection,
-  getSiblingRowCellByDirection: getSiblingRowCellByDirection
-};
-
-/***/ }),
-
 /***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3468,7 +3618,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 
-var _highlight = __webpack_require__(28);
+var _highlight = __webpack_require__(31);
 
 var _highlight2 = _interopRequireDefault(_highlight);
 
@@ -3578,107 +3728,47 @@ exports.default = new CodeBlockManager();
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+var _tuiCodeSnippet = __webpack_require__(1);
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _preview = __webpack_require__(10);
-
-var _preview2 = _interopRequireDefault(_preview);
+var _tuiCodeSnippet2 = _interopRequireDefault(_tuiCodeSnippet);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * @fileoverview Implements markdown preview
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-
+var hostnameSent = false;
 
 /**
- * Class Markdown Preview
- * @extends {Preview}
+ * send host name
+ * @ignore
  */
-var MarkdownPreview = function (_Preview) {
-  _inherits(MarkdownPreview, _Preview);
-
-  /**
-   * Creates an instance of MarkdownPreview.
-   * @param {jQuery} $el - base jQuery element
-   * @param {EventManager} eventManager - event manager
-   * @param {Convertor} convertor - convertor
-   * @param {boolean} isViewer - true for view only mode
-   * @memberof MarkdownPreview
-   */
-  function MarkdownPreview($el, eventManager, convertor, isViewer) {
-    _classCallCheck(this, MarkdownPreview);
-
-    var _this = _possibleConstructorReturn(this, (MarkdownPreview.__proto__ || Object.getPrototypeOf(MarkdownPreview)).call(this, $el, eventManager, convertor, isViewer));
-
-    _this._initEvent();
-    return _this;
+function sendHostName() {
+  if (hostnameSent) {
+    return;
   }
+  hostnameSent = true;
 
-  /**
-   * Initialize event
-   * @private
-   */
+  var trackingID = 'UA-115377265-9';
+  var applicationID = 'editor';
+  var hitType = 'event';
+  var _location = location,
+      hostname = _location.hostname;
 
 
-  _createClass(MarkdownPreview, [{
-    key: '_initEvent',
-    value: function _initEvent() {
-      var _this2 = this;
+  _tuiCodeSnippet2.default.imagePing('https://www.google-analytics.com/collect', {
+    v: 1,
+    t: hitType,
+    tid: trackingID,
+    cid: hostname,
+    dp: hostname,
+    dh: applicationID
+  });
+}
 
-      var latestMarkdownValue = '';
+var isMac = /Mac/.test(navigator.platform);
 
-      this.eventManager.listen('contentChangedFromMarkdown', function (markdownEditor) {
-        latestMarkdownValue = markdownEditor.getValue();
-
-        if (_this2.isVisible()) {
-          _this2.lazyRunner.run('refresh', latestMarkdownValue.replace(/<br>\n/g, '<br>'));
-        }
-      });
-
-      this.eventManager.listen('previewNeedsRefresh', function (value) {
-        _this2.refresh(value || latestMarkdownValue);
-      });
-
-      this.$el.on('scroll', function (event) {
-        _this2.eventManager.emit('scroll', {
-          source: 'preview',
-          data: event
-        });
-      });
-    }
-
-    /**
-     * render
-     * @param {string} html - html string to render
-     * @memberof MarkdownPreview
-     * @override
-     */
-
-  }, {
-    key: 'render',
-    value: function render(html) {
-      _get(MarkdownPreview.prototype.__proto__ || Object.getPrototypeOf(MarkdownPreview.prototype), 'render', this).call(this, html);
-
-      this.eventManager.emit('previewRenderAfter', this);
-    }
-  }]);
-
-  return MarkdownPreview;
-}(_preview2.default);
-
-exports.default = MarkdownPreview;
+module.exports = {
+  sendHostName: sendHostName,
+  isMac: isMac
+};
 
 /***/ })
 

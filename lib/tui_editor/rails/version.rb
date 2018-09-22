@@ -1,5 +1,5 @@
 module TuiEditor
   module Rails
-    VERSION = "1.0.2.0"
+    VERSION = "1.2.6.0"
   end
 end

@@ -1,6 +1,6 @@
 /*!
  * tui-editor
- * @version 1.0.2
+ * @version 1.2.6
  * @author NHN Ent. FE Development Lab <dl_javascript@nhnent.com> (https://nhnent.github.io/tui.editor/)
  * @license MIT
  */
@@ -1241,6 +1241,20 @@ if (i18n) {
     'Unmerge cells': 'Séparer les cellules',
     'Cannot change part of merged cell': 'Impossible de modifier une partie de la cellule fusionnée.',
     'Cannot paste row merged cells into the table header': 'Impossible de coller les cellules fusionnées dans l\'en-tête du tableau.'
+  });
+
+  i18n.setLanguage(['uk', 'uk_UA'], {
+    'Merge cells': 'Об\'єднати комірки',
+    'Unmerge cells': 'Роз\'єднати комірки',
+    'Cannot change part of merged cell': 'Ви не можете змінювати частину комбінованої комірки.',
+    'Cannot paste row merged cells into the table header': 'Ви не можете вставляти об\'єднані комірки в заголовок таблиці.'
+  });
+
+  i18n.setLanguage(['tr', 'tr_TR'], {
+    'Merge cells': 'Hücreleri birleştir',
+    'Unmerge cells': 'Hücreleri ayır',
+    'Cannot change part of merged cell': 'Birleştirilmiş hücrelerin bir kısmı değiştirelemez.',
+    'Cannot paste row merged cells into the table header': 'Satırda birleştirilmiş hücreler sütun başlığına yapıştırılamaz'
   });
 }
 
@@ -2516,11 +2530,12 @@ var WwMergedTableSelectionManager = function (_WwTableSelectionMana) {
     /**
      * Style to selected cells.
      * @param {function} onStyle - function for styling
+     * @param {Object} [options] - options to be passed into onStyle
      */
 
   }, {
     key: 'styleToSelectedCells',
-    value: function styleToSelectedCells(onStyle) {
+    value: function styleToSelectedCells(onStyle, options) {
       var sq = this.wwe.getEditor();
       var range = sq.getSelection().cloneRange();
       var $table = (0, _jquery2.default)(range.startContainer).closest('[contenteditable=true] table');
@@ -2537,7 +2552,7 @@ var WwMergedTableSelectionManager = function (_WwTableSelectionMana) {
         range.setStart(firstSelectedCell, 0);
         range.setEnd(lastSelectedCell, lastSelectedCell.childNodes.length);
         sq.setSelection(range);
-        onStyle(sq);
+        onStyle(sq, options);
       });
     }
 

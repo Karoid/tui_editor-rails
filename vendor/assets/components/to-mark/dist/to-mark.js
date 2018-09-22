@@ -108,7 +108,8 @@ var basicRenderer = Renderer.factory({
 
         if (this._isNeedEscapeHtml(managedText)) {
             managedText = this.escapeTextHtml(managedText);
-        } else if (this._isNeedEscape(managedText)) {
+        }
+        if (this._isNeedEscape(managedText)) {
             managedText = this.escapeText(managedText);
         }
 
@@ -154,7 +155,7 @@ var basicRenderer = Renderer.factory({
         }
 
         if (!this.isEmptyText(subContent) && url) {
-            res = '[' + subContent + '](' + url + title + ')';
+            res = '[' + this.escapeTextForLink(subContent) + '](' + url + title + ')';
         }
 
         return res;
@@ -165,7 +166,7 @@ var basicRenderer = Renderer.factory({
             alt = node.alt;
 
         if (src) {
-            res = '![' + alt + '](' + src + ')';
+            res = '![' + this.escapeTextForLink(alt) + '](' + src + ')';
         }
 
         return res;
@@ -338,7 +339,9 @@ var FIND_LEAD_SPACE_RX = /^\u0020/,
     //find space more than one
     FIND_SPACE_MORE_THAN_ONE_RX = /[\u0020]+/g,
     //find characters that need escape
-    FIND_CHAR_TO_ESCAPE_RX = /[~>()*{}\[\]_`+-.!#|]/g;
+    FIND_CHAR_TO_ESCAPE_RX = /[~>()*{}\[\]_`+-.!#|]/g,
+    // find characters to be escaped in links or images
+    FIND_CHAR_TO_ESCAPE_IN_LINK_RX = /[\[\]\(\)<>]/g;
 
 var TEXT_NODE = 3;
 
@@ -629,11 +632,20 @@ Renderer.prototype.getSpaceCollapsedText = function(text) {
  * @returns {string} processed text
  */
 Renderer.prototype.escapeText = function(text) {
-    text = text.replace(FIND_CHAR_TO_ESCAPE_RX, function(matched) {
+    return text.replace(FIND_CHAR_TO_ESCAPE_RX, function(matched) {
         return '\\' + matched;
     });
+};
 
-    return text;
+/**
+ * Escape given text for link
+ * @param {string} text - text be processed
+ * @returns {string} - processed text
+ */
+Renderer.prototype.escapeTextForLink = function(text) {
+    return text.replace(FIND_CHAR_TO_ESCAPE_IN_LINK_RX, function(matched) {
+        return '\\' + matched;
+    });
 };
 
 /**
@@ -768,15 +780,19 @@ var gfmRenderer = Renderer.factory(basicRenderer, {
         return '~~' + subContent + '~~';
     },
     'PRE CODE': function(node, subContent) {
+        var backticks;
         var language = '';
+        var numberOfBackticks = node.getAttribute('data-backticks');
 
         if (node.getAttribute('data-language')) {
             language = ' ' + node.getAttribute('data-language');
         }
+        numberOfBackticks = parseInt(numberOfBackticks, 10);
+        backticks = isNaN(numberOfBackticks) ? '```' : Array(numberOfBackticks + 1).join('`');
 
         subContent = subContent.replace(/(\r\n)|(\r)|(\n)/g, this.lineFeedReplacement);
 
-        return '\n\n```' + language + '\n' + subContent + '\n```\n\n';
+        return '\n\n' + backticks + language + '\n' + subContent + '\n' + backticks + '\n\n';
     },
     'PRE': function(node, subContent) {
         return subContent;
@@ -796,6 +812,8 @@ var gfmRenderer = Renderer.factory(basicRenderer, {
         return subContent;
     },
     'TR TD, TR TH': function(node, subContent) {
+        subContent = subContent.replace(/(\r\n)|(\r)|(\n)/g, '');
+
         return ' ' + subContent + ' |';
     },
     'TD BR, TH BR': function() {

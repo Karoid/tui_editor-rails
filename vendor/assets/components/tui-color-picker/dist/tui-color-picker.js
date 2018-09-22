@@ -1,6 +1,6 @@
 /*!
  * Toast UI Colorpicker
- * @version 2.0.1
+ * @version 2.2.0
  * @author NHNEnt FE Development Team <dl_javascript@nhnent.com>
  * @license MIT
  */
@@ -686,6 +686,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	domutil.enableImageDrag = function () {
 	    domevent.off(window, 'dragstart', domevent.preventDefault);
+	};
+
+	/**
+	 * Replace matched property with template
+	 * @param {string} template - String of template
+	 * @param {Object} propObj - Properties
+	 * @returns {string} Replaced template string
+	 */
+	domutil.applyTemplate = function (template, propObj) {
+	    var newTemplate = template.replace(/\{\{(\w*)\}\}/g, function (value, prop) {
+	        return propObj.hasOwnProperty(prop) ? propObj[prop] : '';
+	    });
+
+	    return newTemplate;
 	};
 
 	module.exports = domutil;
@@ -1969,6 +1983,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Palette = __webpack_require__(16);
 	var Slider = __webpack_require__(18);
 
+	var hostnameSent = false;
+
+	/**
+	 * send hostname
+	 * @ignore
+	 */
+	function sendHostname() {
+	    var hostname = location.hostname;
+
+	    if (hostnameSent) {
+	        return;
+	    }
+	    hostnameSent = true;
+
+	    util.imagePing('https://www.google-analytics.com/collect', {
+	        v: 1,
+	        t: 'event',
+	        tid: 'UA-115377265-9',
+	        cid: hostname,
+	        dp: hostname,
+	        dh: 'color-picker'
+	    });
+	}
+
 	/**
 	 * @constructor
 	 * @mixes CustomEvents
@@ -1978,6 +2016,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *  @param {string[]} [options.preset] - color preset for palette (use base16 palette if not supplied)
 	 *  @param {string} [options.cssPrefix='tui-colorpicker-'] - css prefix text for each child elements
 	 *  @param {string} [options.detailTxt='Detail'] - text for detail button.
+	 *  @param {boolean} [options.usageStatistics=true] - Let us know the hostname. If you don't want to send the hostname, please set to false.
 	 * @example
 	 * var colorPicker = tui.colorPicker; // or require('tui-color-picker')
 	 *
@@ -2001,7 +2040,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        color: '#f8f8f8',
 	        preset: ['#181818', '#282828', '#383838', '#585858', '#b8b8b8', '#d8d8d8', '#e8e8e8', '#f8f8f8', '#ab4642', '#dc9656', '#f7ca88', '#a1b56c', '#86c1b9', '#7cafc2', '#ba8baf', '#a16946'],
 	        cssPrefix: 'tui-colorpicker-',
-	        detailTxt: 'Detail'
+	        detailTxt: 'Detail',
+	        usageStatistics: true
 	    }, options);
 
 	    if (!options.container) {
@@ -2040,6 +2080,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    layout.addChild(this.slider);
 
 	    this.render(options.color);
+
+	    if (options.usageStatistics) {
+	        sendHostname();
+	    }
 	}
 
 	/**
@@ -2052,7 +2096,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var color = selectColorEventData.color,
 	        opt = this.options;
 
-	    if (!colorutil.isValidRGB(color)) {
+	    if (!colorutil.isValidRGB(color) && color !== '') {
 	        this.render();
 
 	        return;
@@ -2424,6 +2468,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var util = __webpack_require__(8);
 	var domutil = __webpack_require__(7);
+	var colorutil = __webpack_require__(14);
 	var domevent = __webpack_require__(9);
 	var View = __webpack_require__(11);
 	var tmpl = __webpack_require__(17);
@@ -2546,14 +2591,30 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this._toggleEvent(false);
 
-	    html = tmpl.layout.replace('{{colorList}}', util.map(options.preset, function (_color) {
-	        var itemHtml = tmpl.item.replace(/{{color}}/g, _color);
-	        itemHtml = itemHtml.replace('{{selected}}', _color === color ? ' ' + options.cssPrefix + 'selected' : '');
+	    html = tmpl.layout.replace('{{colorList}}', util.map(options.preset, function (itemColor) {
+	        var itemHtml = '';
+	        var style = '';
+
+	        if (colorutil.isValidRGB(itemColor)) {
+	            style = domutil.applyTemplate(tmpl.itemStyle, { color: itemColor });
+	        }
+
+	        itemHtml = domutil.applyTemplate(tmpl.item, {
+	            itemStyle: style,
+	            itemClass: !itemColor ? ' ' + options.cssPrefix + 'color-transparent' : '',
+	            color: itemColor,
+	            cssPrefix: options.cssPrefix,
+	            selected: itemColor === color ? ' ' + options.cssPrefix + 'selected' : ''
+	        });
 
 	        return itemHtml;
 	    }).join(''));
 
-	    html = html.replace(/{{cssPrefix}}/g, options.cssPrefix).replace('{{detailTxt}}', options.detailTxt).replace(/{{color}}/g, color);
+	    html = domutil.applyTemplate(html, {
+	        cssPrefix: options.cssPrefix,
+	        detailTxt: options.detailTxt,
+	        color: color
+	    });
 
 	    this.container.innerHTML = html;
 
@@ -2577,11 +2638,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var layout = ['<ul class="{{cssPrefix}}clearfix">{{colorList}}</ul>', '<div class="{{cssPrefix}}clearfix" style="overflow:hidden">', '<input type="button" class="{{cssPrefix}}palette-toggle-slider" value="{{detailTxt}}" />', '<input type="text" class="{{cssPrefix}}palette-hex" value="{{color}}" maxlength="7" />', '<span class="{{cssPrefix}}palette-preview" style="background-color:{{color}};color:{{color}}">{{color}}</span>', '</div>'].join('\n');
 
-	var item = '<li><input class="{{cssPrefix}}palette-button{{selected}}" type="button" style="background-color:{{color}};color:{{color}}" title="{{color}}" value="{{color}}" /></li>';
+	var item = '<li><input class="{{cssPrefix}}palette-button{{selected}}{{itemClass}}" type="button" style="{{itemStyle}}" title="{{color}}" value="{{color}}" /></li>';
+	var itemStyle = 'background-color:{{color}};color:{{color}}';
 
 	module.exports = {
 	    layout: layout,
-	    item: item
+	    item: item,
+	    itemStyle: itemStyle
 	};
 
 /***/ }),
@@ -2716,6 +2779,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        html = tmpl.layout,
 	        rgb,
 	        hsv;
+
+	    if (!colorutil.isValidRGB(colorStr)) {
+	        return;
+	    }
 
 	    html = html.replace(/{{slider}}/, tmpl.slider);
 	    html = html.replace(/{{huebar}}/, tmpl.huebar);
